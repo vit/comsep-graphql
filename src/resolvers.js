@@ -1,6 +1,24 @@
 
 import jsonwebtoken from 'jsonwebtoken';
 
+import axios from 'axios';
+
+const RPC = (method, params, key) => {
+//    var url = "https://conf-nuxt-vit2.c9users.io/confproxy/rpc/";
+    var url = "http://comsep.ru/rpc/";
+    const data = {method, params};
+    const headers = {};
+        if(key) {
+            //let expired_time = new Date();
+            //expired_time.setTime( expired_time.getTime()+12*60*60*1000 )
+            const header = 'session_key='+key;
+            //console.log(header);
+            headers['Cookie'] = header;
+        }
+    return axios({method: 'post', url, data, headers});
+//    return axios.post(url, {method, params});
+};
+
 export const resolvers = {
     Query: {
 //        async getConfs() {
@@ -15,7 +33,43 @@ export const resolvers = {
         },
     },
     Mutation: {
-//        async login(_, { email, password }, { req }) {
+        coms_login(_, { pin, password }, { req }) {
+            let user = null;
+
+///*
+            return RPC('user.auth.userEnter', [pin, password])
+            .then(function (response) {
+              console.log(response.data);
+//                console.log(response);
+
+                const session_key = response.data.result;
+
+                return RPC('user.get_user_info', [pin], session_key).then(function (response) {
+                  console.log(response.data);
+
+                    const user = {_id: 1, full_name: 'vvv sss'}
+                    const jwt_token = jsonwebtoken.sign(
+                        user,
+        //                process.env.JWT_SECRET,
+                        "twert werty erty erty erty erhpu hoihv heqorutwo weruthweoi uwetoyiwuehtywe ery",
+                        { expiresIn: '1d' }
+                    )
+                    const rez = {
+                        session_key,
+                        jwt_token,
+                        user
+                    };
+                    return rez;
+
+
+                })
+
+
+            })
+//*/
+
+        },
+
         login(_, { email, password }, { req }) {
             let user = null;
             if( email=='qqq@gmail.com' && password=='qqq' )
